@@ -363,6 +363,3 @@ Use the built-in docs page at `/docs`.
 
 ---
 
-## License
-
-MIT
