@@ -2,7 +2,7 @@
 
 A secure authentication and authorization backend built with **Python and FastAPI**. It covers the full lifecycle of a user account: registration, login, short-lived access tokens, rotating refresh tokens, protected routes, role-based access control, and account recovery.
 
-> **Status:** Phases 1-2 complete. Phases 3-6 planned. See the [Roadmap](#roadmap).
+> **Status:** Phases 1-3 complete. Phases 4-6 planned. See the [Roadmap](#roadmap).
 
 ---
 
@@ -178,13 +178,13 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 | POST | `/api/auth/refresh` | Issues a new access token and rotates the refresh token | Refresh cookie |
 | POST | `/api/auth/logout` | Revokes the refresh token | Access token |
 | GET | `/health` | Health check | No |
+| GET | `/api/admin/users` | List all users | Admin role |
+| PATCH | `/api/admin/users/{id}/role` | Change a user's role | Admin role |
 
 ### Planned
 
 | Method | Endpoint | Description | Auth required |
 |---|---|---|---|
-| GET | `/api/admin/users` | List all users | Admin role |
-| PATCH | `/api/admin/users/{id}/role` | Change a user's role | Admin role |
 | POST | `/api/auth/forgot-password` | Email a password reset link | No |
 | POST | `/api/auth/reset-password` | Set a new password using the reset token | Reset token |
 | GET | `/api/auth/google/login` | Start Google sign-in | No |
@@ -325,11 +325,11 @@ Use the built-in docs page at `/docs`.
 - [x] Logout that revokes the refresh token
 - [x] Handling of expired and invalid tokens
 
-### Phase 3: Authorization (next)
-- [ ] `require_role("admin")` dependency
-- [ ] Admin-only endpoints (list users, change roles)
-- [ ] 403 responses for insufficient permissions
-- [ ] Safe way to create the first admin
+### Phase 3: Authorization (complete)
+- [x] `require_role("admin")` dependency
+- [x] Admin-only endpoints (list users, change roles)
+- [x] 403 responses for insufficient permissions
+- [x] Safe way to create the first admin
 
 ### Phase 4: Hardening
 - [ ] Rate limiting on login and register (brute-force protection)
@@ -363,6 +363,3 @@ Use the built-in docs page at `/docs`.
 
 ---
 
-## License
-
-MIT

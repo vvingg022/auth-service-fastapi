@@ -1,3 +1,4 @@
+from typing import Literal
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -24,3 +25,6 @@ class UserOut(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     user: UserOut
+
+class RoleUpdate(BaseModel):
+    role: Literal["user", "admin"]
