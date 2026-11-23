@@ -219,7 +219,7 @@ auth-service/
 │   └── routers/
 │       ├── __init__.py    # register, login, me, refresh, logout
 │       ├── admin.py
-│       └── auth.py│                             
+│       └── auth.py                            
 ├── .env                  
 ├── .gitignore
 ├── create_admin.py 
