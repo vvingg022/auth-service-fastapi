@@ -217,10 +217,12 @@ auth-service/
 │   ├── security.py        # bcrypt hashing + JWT create/decode
 │   ├── dependencies.py    # get_current_user (protected-route checkpoint)
 │   └── routers/
-│       ├── __init__.py
-│       └── auth.py        # register, login, me, refresh, logout
-├── .env                   # Secrets (never committed)
+│       ├── __init__.py    # register, login, me, refresh, logout
+│       ├── admin.py
+│       └── auth.py                            
+├── .env                  
 ├── .gitignore
+├── create_admin.py 
 ├── requirements.txt
 └── README.md
 ```
