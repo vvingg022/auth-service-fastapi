@@ -1,12 +1,13 @@
 from typing import Optional
 
 import jwt
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 
 from .. import models, schemas, security
 from ..database import get_db
 from ..dependencies import get_current_user
+from ..limiter import limiter
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -25,7 +26,8 @@ def set_refresh_cookie(response: Response, token: str):
 
 
 @router.post("/register", response_model=schemas.UserOut, status_code=status.HTTP_201_CREATED)
-def register(data: schemas.RegisterRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, data: schemas.RegisterRequest, db: Session = Depends(get_db)):
     email = data.email.lower()
 
     if db.query(models.User).filter(models.User.email == email).first():
@@ -43,7 +45,13 @@ def register(data: schemas.RegisterRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=schemas.TokenResponse)
-def login(data: schemas.LoginRequest, response: Response, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(
+    request: Request,
+    data: schemas.LoginRequest,
+    response: Response,
+    db: Session = Depends(get_db),
+):
     user = db.query(models.User).filter(models.User.email == data.email.lower()).first()
 
     if not user or not security.verify_password(data.password, user.password_hash):
@@ -65,7 +73,9 @@ def me(current_user: models.User = Depends(get_current_user)):
 
 
 @router.post("/refresh")
+@limiter.limit("10/minute")
 def refresh(
+    request: Request,
     response: Response,
     refresh_token: Optional[str] = Cookie(default=None, alias=COOKIE_NAME),
     db: Session = Depends(get_db),
@@ -82,11 +92,9 @@ def refresh(
 
     user = db.get(models.User, int(payload["sub"]))
 
-    # The cookie must match the one saved in the database
     if not user or user.refresh_token != refresh_token:
         raise HTTPException(status_code=401, detail="Refresh token revoked")
 
-    # Rotation: issue a new refresh token, the old one stops working
     new_access = security.create_access_token(user.id, user.role)
     new_refresh = security.create_refresh_token(user.id)
     user.refresh_token = new_refresh
