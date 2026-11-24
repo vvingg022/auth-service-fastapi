@@ -2,7 +2,7 @@
 
 A secure authentication and authorization backend built with **Python and FastAPI**. It covers the full lifecycle of a user account: registration, login, short-lived access tokens, rotating refresh tokens, protected routes, role-based access control, and account recovery.
 
-> **Status:** Phases 1-3 complete. Phases 4-6 planned. See the [Roadmap](#roadmap).
+> **Status:** Phases 1-4 complete. Phases 5-6 planned. See the [Roadmap](#roadmap).
 
 ---
 
@@ -172,14 +172,15 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 
 | Method | Endpoint | Description | Auth required |
 |---|---|---|---|
-| POST | `/api/auth/register` | Create an account | No |
+| POST | `/api/auth/register` | Create an account |
 | POST | `/api/auth/login` | Returns access token and sets refresh cookie | No |
 | GET | `/api/auth/me` | Returns the current user | Access token |
 | POST | `/api/auth/refresh` | Issues a new access token and rotates the refresh token | Refresh cookie |
 | POST | `/api/auth/logout` | Revokes the refresh token | Access token |
-| GET | `/health` | Health check | No |
+| GET | `/health` | Health check | 
 | GET | `/api/admin/users` | List all users | Admin role |
 | PATCH | `/api/admin/users/{id}/role` | Change a user's role | Admin role |
+| POST | `api/admin/users/{id}/unlock` | Admin role |
 
 ### Planned
 
@@ -200,7 +201,8 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 | 403 | Authenticated but not allowed (wrong role) |
 | 409 | Email already registered |
 | 422 | Request body failed validation |
-| 429 | Too many requests (rate limiting, planned) |
+| 429 | Too many requests (rate limiting) |
+| 423 | Locked: account temporarily locked |
 
 ---
 
@@ -210,7 +212,11 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 auth-service/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py            # App entry: creates tables, registers routers
+│   ├── main.py            # App entry: creates tables, registers 
+│   ├── limiter.py
+│   ├── middleware.py
+│   ├── logger.py          # logs
+routers
 │   ├── database.py        # Engine, session factory, get_db dependency
 │   ├── models.py          # SQLAlchemy User table
 │   ├── schemas.py         # Pydantic request/response shapes
@@ -333,11 +339,11 @@ Use the built-in docs page at `/docs`.
 - [x] 403 responses for insufficient permissions
 - [x] Safe way to create the first admin
 
-### Phase 4: Hardening
-- [ ] Rate limiting on login and register (brute-force protection)
-- [ ] Security headers and CORS configuration
-- [ ] Account lockout after repeated failed logins
-- [ ] Structured logging of security events
+### Phase 4: Hardening (complete)
+- [x] Rate limiting on login and register (brute-force protection)
+- [x] Security headers and CORS configuration
+- [x] Account lockout after repeated failed logins
+- [x] Structured logging of security events
 
 ### Phase 5: Account recovery and social login
 - [ ] Forgot-password endpoint with a time-limited reset token
