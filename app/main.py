@@ -9,7 +9,7 @@ from slowapi.errors import RateLimitExceeded
 from .database import Base, engine
 from .limiter import limiter
 from .middleware import SecurityHeadersMiddleware
-from .routers import admin, auth
+from .routers import admin, auth, password
 
 load_dotenv()
 
@@ -46,7 +46,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 # --- Routes ---
 app.include_router(auth.router)
 app.include_router(admin.router)
-
+app.include_router(password.router)
 
 @app.get("/health")
 def health():
