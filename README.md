@@ -341,6 +341,7 @@ Use the built-in docs page at `/docs`.
 
 **Verify hashing:** open the `users` table in the SQLite file and check that `password_hash` starts with `$2b$` and is not the real password.
 
+Refresh and access tokens include a unique jti claim, so tokens issued in the same second are still distinct and rotation always invalidates the old token. (Found by an automated test.)
 ---
 
 ## Roadmap

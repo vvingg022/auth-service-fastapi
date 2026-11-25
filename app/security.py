@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta, timezone
-
+import secrets
 import bcrypt
 import jwt
 from dotenv import load_dotenv
@@ -26,6 +26,7 @@ def create_access_token(user_id: int, role: str) -> str:
     payload = {
         "sub": str(user_id),
         "role": role,
+        "jti": secrets.token_hex(16),
         "exp": datetime.now(timezone.utc) + timedelta(minutes=ACCESS_MINUTES),
     }
     return jwt.encode(payload, ACCESS_SECRET, algorithm=ALGORITHM)
@@ -34,6 +35,7 @@ def create_access_token(user_id: int, role: str) -> str:
 def create_refresh_token(user_id: int) -> str:
     payload = {
         "sub": str(user_id),
+        "jti": secrets.token_hex(16),
         "exp": datetime.now(timezone.utc) + timedelta(days=REFRESH_DAYS),
     }
     return jwt.encode(payload, REFRESH_SECRET, algorithm=ALGORITHM)
