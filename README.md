@@ -2,7 +2,7 @@
 
 A secure authentication and authorization backend built with **Python and FastAPI**. It covers the full lifecycle of a user account: registration, login, short-lived access tokens, rotating refresh tokens, protected routes, role-based access control, and account recovery.
 
-> **Status:** Phases 1-4 complete. Phases 5-6 planned. See the [Roadmap](#roadmap).
+
 
 ---
 
@@ -173,7 +173,7 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 | Method | Endpoint | Description | Auth required |
 |---|---|---|---|
 | POST | `/api/auth/register` | Create an account |
-| POST | `/api/auth/login` | Returns access token and sets refresh cookie | No |
+| POST | `/api/auth/login` | Returns access token and sets refresh cookie |
 | GET | `/api/auth/me` | Returns the current user | Access token |
 | POST | `/api/auth/refresh` | Issues a new access token and rotates the refresh token | Refresh cookie |
 | POST | `/api/auth/logout` | Revokes the refresh token | Access token |
@@ -181,15 +181,10 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 | GET | `/api/admin/users` | List all users | Admin role |
 | PATCH | `/api/admin/users/{id}/role` | Change a user's role | Admin role |
 | POST | `api/admin/users/{id}/unlock` | Admin role |
-
-### Planned
-
-| Method | Endpoint | Description | Auth required |
-|---|---|---|---|
-| POST | `/api/auth/forgot-password` | Email a password reset link | No |
+| POST | `/api/auth/forgot-password` | Email a password reset link |
 | POST | `/api/auth/reset-password` | Set a new password using the reset token | Reset token |
-| GET | `/api/auth/google/login` | Start Google sign-in | No |
-| GET | `/api/auth/google/callback` | Finish Google sign-in | No |
+| GET | `/api/auth/google/login` | Start Google sign-in |
+| GET | `/api/auth/google/callback` | Finish Google sign-in |
 
 ### Status codes used
 
@@ -225,7 +220,8 @@ routers
 │   └── routers/
 │       ├── __init__.py    # register, login, me, refresh, logout
 │       ├── admin.py
-│       └── auth.py                            
+│       ├── auth.py
+│       └── google.py                            
 ├── .env                  
 ├── .gitignore
 ├── create_admin.py 
@@ -256,7 +252,9 @@ venv\Scripts\activate          # Windows
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Create your .env file (see Configuration below)
+# 4. Create your .env file from the template
+copy .env.example .env          # Windows
+# cp .env.example .env          # macOS / Linux
 
 # 5. Run the server
 uvicorn app.main:app --reload
@@ -280,11 +278,31 @@ ACCESS_EXPIRE_MINUTES=15
 REFRESH_EXPIRE_DAYS=7
 ```
 
+# --- CORS ---
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+
+# --- Password reset and email ---
+FRONTEND_URL=http://localhost:3000
+RESET_TOKEN_MINUTES=30
+SMTP_HOST=
+SMTP_PORT=2525
+SMTP_USER=
+SMTP_PASSWORD=
+EMAIL_FROM=no-reply@authservice.local
+
+# --- Google login ---
+GOOGLE_CLIENT_ID=<from Google Cloud Console>
+GOOGLE_CLIENT_SECRET=<from Google Cloud Console>
+GOOGLE_REDIRECT_URI=http://127.0.0.1:8000/api/auth/google/callback
+SESSION_SECRET=<random string 3>
+```
+
 Generate each secret with:
 
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
+Use a **different** value for each secret.
 
 | Variable | Meaning |
 |---|---|
@@ -293,6 +311,15 @@ python -c "import secrets; print(secrets.token_hex(32))"
 | `JWT_REFRESH_SECRET` | Signing key for refresh tokens (must differ from the access secret) |
 | `ACCESS_EXPIRE_MINUTES` | Access token lifetime |
 | `REFRESH_EXPIRE_DAYS` | Refresh token lifetime |
+| `CORS_ORIGINS` | Comma-separated list of websites allowed to call the API |
+| `FRONTEND_URL` | Base URL used in password reset links |
+| `RESET_TOKEN_MINUTES` | How long a reset token stays valid |
+| `SMTP_*`, `EMAIL_FROM` | Email server settings. If `SMTP_HOST` is empty, reset emails print to the terminal (development only) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth credentials from Google Cloud |
+| `GOOGLE_REDIRECT_URI` | Must exactly match the URI registered in Google Cloud |
+| `SESSION_SECRET` | Signs the short-lived cookie that protects the OAuth `state` |
+
+> The server restarts automatically when `.py` files change, but **not** when `.env` changes. Restart `uvicorn` after editing `.env`.
 
 ---
 
@@ -346,10 +373,10 @@ Use the built-in docs page at `/docs`.
 - [x] Structured logging of security events
 
 ### Phase 5: Account recovery and social login
-- [ ] Forgot-password endpoint with a time-limited reset token
-- [ ] Reset email via SMTP (Mailtrap for testing)
-- [ ] Reset-password endpoint that also revokes existing sessions
-- [ ] "Login with Google" using OAuth 2.0
+- [x] Forgot-password endpoint with a time-limited reset token
+- [x] Reset email via SMTP (Mailtrap for testing)
+- [x] Reset-password endpoint that also revokes existing sessions
+- [x] "Login with Google" using OAuth 2.0
 
 ### Phase 6: Production readiness
 - [ ] Automated tests with `pytest`

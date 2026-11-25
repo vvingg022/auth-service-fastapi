@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, UniqueConstraint
 
 from .database import Base
 
@@ -26,3 +26,15 @@ class PasswordResetToken(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     token_hash = Column(String, unique=True, index=True, nullable=False)
     expires_at = Column(DateTime, nullable=False)
+
+
+class OAuthAccount(Base):
+    __tablename__ = "oauth_accounts"
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_user_id", name="uq_provider_account"),
+    )
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    provider = Column(String, nullable=False)          # "google"
+    provider_user_id = Column(String, nullable=False)  # Google's permanent "sub"
