@@ -304,10 +304,10 @@ ACCESS_EXPIRE_MINUTES=15
 REFRESH_EXPIRE_DAYS=7
 ```
 
-## --- CORS ---
+## CORS ---
 CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 
-## --- Password reset and email ---
+## Password reset and email ---
 FRONTEND_URL=http://localhost:3000
 RESET_TOKEN_MINUTES=30
 SMTP_HOST=
@@ -316,7 +316,7 @@ SMTP_USER=
 SMTP_PASSWORD=
 EMAIL_FROM=no-reply@authservice.local
 
-## --- Google login ---
+## Google login ---
 GOOGLE_CLIENT_ID=<from Google Cloud Console>
 GOOGLE_CLIENT_SECRET=<from Google Cloud Console>
 GOOGLE_REDIRECT_URI=http://127.0.0.1:8000/api/auth/google/callback

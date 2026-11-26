@@ -5,6 +5,7 @@ from email.message import EmailMessage
 from dotenv import load_dotenv
 
 from .logger import log_event
+from .middleware import IS_PRODUCTION
 
 load_dotenv()
 
@@ -28,13 +29,16 @@ def send_reset_email(to_email: str, token: str) -> None:
         "If you did not request this, you can ignore this email.\n"
     )
 
-    # Option A: no SMTP configured, so print to the terminal (development only)
     if not SMTP_HOST:
+        if IS_PRODUCTION:
+            # Never print tokens where hosting logs can show them
+            log_event("reset_email_not_sent", "warning", reason="smtp_not_configured")
+            return
+        # Development only: print to the terminal
         print("\n[DEV ONLY - SMTP not configured] Reset email for", to_email)
         print(body)
         return
 
-    # Option B: send through SMTP (for example Mailtrap)
     msg = EmailMessage()
     msg["Subject"] = "Reset your password"
     msg["From"] = EMAIL_FROM
@@ -48,5 +52,4 @@ def send_reset_email(to_email: str, token: str) -> None:
             server.send_message(msg)
         log_event("reset_email_sent")
     except Exception as exc:
-        # Log only the error type, never credentials or the token
         log_event("reset_email_failed", "error", error=type(exc).__name__)

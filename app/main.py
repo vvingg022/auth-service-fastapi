@@ -11,10 +11,12 @@ from .database import Base, engine
 from .limiter import limiter
 from .middleware import IS_PRODUCTION, SecurityHeadersMiddleware
 from .routers import admin, auth, google, password
+from .bootstrap import ensure_admin
 
 load_dotenv()
 
 Base.metadata.create_all(bind=engine)
+ensure_admin()
 
 app = FastAPI(title="Auth Service")
 

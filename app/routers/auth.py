@@ -11,6 +11,7 @@ from ..database import get_db
 from ..dependencies import get_current_user
 from ..limiter import limiter
 from ..logger import log_event
+from ..middleware import IS_PRODUCTION
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -34,7 +35,7 @@ def set_refresh_cookie(response: Response, token: str):
         value=token,
         httponly=True,
         samesite="lax",
-        secure=False,  # set True in production (HTTPS)
+        secure=IS_PRODUCTION,  # True on the live HTTPS site
         max_age=security.REFRESH_DAYS * 24 * 60 * 60,
     )
 
