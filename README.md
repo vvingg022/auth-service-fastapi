@@ -307,6 +307,7 @@ REFRESH_EXPIRE_DAYS=7
 ## CORS ---
 CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 
+
 ## Password reset and email ---
 FRONTEND_URL=http://localhost:3000
 RESET_TOKEN_MINUTES=30
@@ -315,6 +316,7 @@ SMTP_PORT=2525
 SMTP_USER=
 SMTP_PASSWORD=
 EMAIL_FROM=no-reply@authservice.local
+
 
 ## Google login ---
 GOOGLE_CLIENT_ID=<from Google Cloud Console>
@@ -367,7 +369,8 @@ Use the built-in docs page at `/docs`.
 
 **Verify hashing:** open the `users` table in the SQLite file and check that `password_hash` starts with `$2b$` and is not the real password.
 
-## Refresh and access tokens include a unique jti claim, so tokens issued in the same second are still distinct and rotation always invalidates the old token. (Found by an automated test.)
+Refresh and access tokens include a unique jti claim, so tokens issued in the same second are still distinct and rotation always invalidates the old token.**(Found by an automated test.)**
+
 ---
 
 ## Roadmap
