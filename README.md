@@ -43,7 +43,7 @@ This service answers both. It is a standalone REST API that a web or mobile fron
 | Web framework | **FastAPI** | Fast, modern, automatic validation and API docs |
 | Server | **Uvicorn** | ASGI server with auto-reload for development |
 | Database toolkit | **SQLAlchemy** | Maps Python classes to database tables (ORM) |
-| Database | **SQLite** | Zero-setup file database (swappable for PostgreSQL) |
+| Database | **PostgreSQL** | Zero-setup file database (SQLite for tests) |
 | Validation | **Pydantic** | Validates request and response data automatically |
 | Tokens | **PyJWT** | Creates and verifies JSON Web Tokens |
 | Password hashing | **bcrypt** | Slow, salted, one-way password hashing |
@@ -222,7 +222,11 @@ routers
 │       ├── admin.py
 │       ├── auth.py
 │       └── google.py                            
-├── .env                  
+├── .env 
+├── Dockerfile
+├── docker-compose.yml
+├── .dockerignore
+├── requirements-dev.txt                 
 ├── .gitignore
 ├── create_admin.py 
 ├── requirements.txt
@@ -264,6 +268,28 @@ Open **http://127.0.0.1:8000/docs** to explore and test the API.
 
 > Always start the app with `uvicorn`. Running `main.py` directly (for example with an editor's Run button) fails because the app uses package-relative imports.
 
+## Running with Docker (PostgreSQL)
+
+```bash
+# 1. Create .env from the template and fill in the values
+copy .env.example .env
+
+# 2. Build and start the API + PostgreSQL
+docker compose up --build
+
+# 3. Create the first admin
+docker compose exec api python create_admin.py
+```
+
+API: http://127.0.0.1:8000 · Docs: http://127.0.0.1:8000/docs
+
+| Command | Effect |
+|---|---|
+| `docker compose down` | Stop (data is kept) |
+| `docker compose down -v` | Stop and delete the database |
+
+The database is not exposed outside Docker, and secrets are injected from `.env` at runtime, not baked into the image.
+
 ---
 
 ## Configuration
@@ -278,10 +304,10 @@ ACCESS_EXPIRE_MINUTES=15
 REFRESH_EXPIRE_DAYS=7
 ```
 
-# --- CORS ---
+## --- CORS ---
 CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 
-# --- Password reset and email ---
+## --- Password reset and email ---
 FRONTEND_URL=http://localhost:3000
 RESET_TOKEN_MINUTES=30
 SMTP_HOST=
@@ -290,7 +316,7 @@ SMTP_USER=
 SMTP_PASSWORD=
 EMAIL_FROM=no-reply@authservice.local
 
-# --- Google login ---
+## --- Google login ---
 GOOGLE_CLIENT_ID=<from Google Cloud Console>
 GOOGLE_CLIENT_SECRET=<from Google Cloud Console>
 GOOGLE_REDIRECT_URI=http://127.0.0.1:8000/api/auth/google/callback
@@ -341,7 +367,7 @@ Use the built-in docs page at `/docs`.
 
 **Verify hashing:** open the `users` table in the SQLite file and check that `password_hash` starts with `$2b$` and is not the real password.
 
-Refresh and access tokens include a unique jti claim, so tokens issued in the same second are still distinct and rotation always invalidates the old token. (Found by an automated test.)
+## Refresh and access tokens include a unique jti claim, so tokens issued in the same second are still distinct and rotation always invalidates the old token. (Found by an automated test.)
 ---
 
 ## Roadmap
@@ -380,10 +406,10 @@ Refresh and access tokens include a unique jti claim, so tokens issued in the sa
 - [x] "Login with Google" using OAuth 2.0
 
 ### Phase 6: Production readiness
-- [ ] Automated tests with `pytest`
-- [ ] Switch to PostgreSQL
-- [ ] Dockerfile and `docker-compose.yml`
-- [ ] Deployment (Render or Railway)
+- [x] Automated tests with `pytest`
+- [x] Switch to PostgreSQL
+- [x] Dockerfile and `docker-compose.yml`
+- [x] Deployment (Render or Railway)
 
 ---
 
