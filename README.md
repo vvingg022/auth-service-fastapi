@@ -3,6 +3,9 @@
 A secure authentication and authorization backend built with **Python and FastAPI**. It covers the full lifecycle of a user account: registration, login, short-lived access tokens, rotating refresh tokens, protected routes, role-based access control, and account recovery.
 
 
+A production-style authentication and authorization API built with FastAPI, PostgreSQL and Docker, deployed on Render.
+
+**Live demo:** https://vivi-auth-service.onrender.com/docs
 
 ---
 
@@ -48,7 +51,8 @@ This service answers both. It is a standalone REST API that a web or mobile fron
 | Tokens | **PyJWT** | Creates and verifies JSON Web Tokens |
 | Password hashing | **bcrypt** | Slow, salted, one-way password hashing |
 | Config | **python-dotenv** | Loads secrets from a `.env` file |
-
+| Containerization | **Docker** |
+| Deployment | **Render** |
 ---
 
 ## Key concepts
@@ -308,6 +312,7 @@ REFRESH_EXPIRE_DAYS=7
 CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 
 
+
 ## Password reset and email ---
 FRONTEND_URL=http://localhost:3000
 RESET_TOKEN_MINUTES=30
@@ -316,6 +321,7 @@ SMTP_PORT=2525
 SMTP_USER=
 SMTP_PASSWORD=
 EMAIL_FROM=no-reply@authservice.local
+
 
 
 ## Google login ---
@@ -425,6 +431,11 @@ Refresh and access tokens include a unique jti claim, so tokens issued in the sa
 - How FastAPI dependencies replace repeated checks with reusable checkpoints
 - How to design error responses that help clients without helping attackers
 - How to keep secrets out of version control
+- Why tests catch bugs that manual clicking misses (see below)
+- Free hosting trades convenience for limits, and you have to design around them
 
+## Testing story
+
+Automated tests found a bug where two tokens created in the same second were identical, because the token timestamps had one-second resolution. 
 ---
 
