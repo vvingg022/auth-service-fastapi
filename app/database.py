@@ -15,7 +15,18 @@ elif DATABASE_URL.startswith("postgresql://"):
 
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
+POOL_SIZE = int(os.getenv("DB_POOL_SIZE", 5))
+MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", 10))
+POOL_TIMEOUT = int(os.getenv("DB_POOL_TIMEOUT", 30))
+
+# SQLite doesn't use these settings
+pool_args = (
+    {}
+    if DATABASE_URL.startswith("sqlite")
+    else {"pool_size": POOL_SIZE, "max_overflow": MAX_OVERFLOW, "pool_timeout": POOL_TIMEOUT}
+)
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True, **pool_args)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
