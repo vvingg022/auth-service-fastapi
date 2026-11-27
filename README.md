@@ -434,8 +434,11 @@ Refresh and access tokens include a unique jti claim, so tokens issued in the sa
 - Why tests catch bugs that manual clicking misses (see below)
 - Free hosting trades convenience for limits, and you have to design around them
 
+
 ## Testing story
 
-Automated tests found a bug where two tokens created in the same second were identical, because the token timestamps had one-second resolution. 
+- Automated tests found a bug where two tokens created in the same second were identical, because
+  the token timestamps had one-second resolution. 
+
 ---
 
