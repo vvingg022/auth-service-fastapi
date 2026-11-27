@@ -379,6 +379,24 @@ Refresh and access tokens include a unique jti claim, so tokens issued in the sa
 
 ---
 
+
+## Performance
+
+Load-tested locally with Locust (single container, rate limiting disabled for the test, load generator on the same machine):
+
+| Concurrent users | Throughput | Errors | p95 latency |
+|---|---|---|---|
+| 200 | 200 req/s | 0% | 19 ms |
+| 300 | 296 req/s | 0% | 40 ms |
+| 400 | 385 req/s | 0% | 130 ms |
+
+Beyond ~400 users latency degraded. Logs showed SQLAlchemy connection-pool exhaustion
+(`QueuePool limit ... reached`), since each login holds a connection during the bcrypt hash.
+The pool size is now configurable via `DB_POOL_SIZE` / `DB_MAX_OVERFLOW`.
+Production runs one worker; scaling further needs more workers and a shared (Redis) rate limiter.
+
+---
+
 ## Roadmap
 
 ### Phase 1: Foundation (complete)
